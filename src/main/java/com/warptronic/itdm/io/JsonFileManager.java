@@ -15,6 +15,8 @@ public class JsonFileManager {
 	private JsonFileManager() {
 		//empty constructor as class only has static methods
 	}
+	
+	//TODO name the file based on date-time
 
 	/**
 	 * Writes a JSON to file
