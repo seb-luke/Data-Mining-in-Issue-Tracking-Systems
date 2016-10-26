@@ -36,6 +36,8 @@ public class Request {
 	//TODO create a new method to take only 100 items per call if there are too many; check method time for a huge # of issues
 	//TODO create a new method use the above together with a filtering parameter (Method Reference)
 	
+	//TODO akka (streams) / Actor (concurency)
+	
 	/**
 	 * The method will return <strong>all</strong> Jira issues. Beware when the issues are more than 1000!
 	 * @return a {@link JsonObject} containing all the issues requested

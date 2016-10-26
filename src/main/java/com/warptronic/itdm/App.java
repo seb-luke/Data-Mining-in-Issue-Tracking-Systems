@@ -45,26 +45,16 @@ public class App {
 		username = args[1];
 		password = args[2];
 		
-		int auth = args[3] == null ? 0 : Integer.parseInt(args[3]);
+		int auth = args.length > 3 ? Integer.parseInt(args[3]) : 0;
 		switch (auth) {
-		case 1:
-			authenticationType = AuthType.BASIC_AUTH;
-			break;
-			
-		case 2:
-			authenticationType = AuthType.COOKIE_BASED_AUTH;
-			break;
-			
-		default:
-			authenticationType = AuthType.BASIC_AUTH;
-			break;
+			case 2:
+				authenticationType = AuthType.COOKIE_BASED_AUTH;
+				break;
+			case 1:
+			default:
+				authenticationType = AuthType.BASIC_AUTH;
+				break;
 		}
-		
-		/**
-		 * This is an example showing how to save all Jira issues to file
-		 */
-		 //JsonObject jsonObject = new Request(baseUrl, username, password, authenticationType).getJiraAllIssues();
-		
 		
 		/**
 		 * This is an example showing how to save only the needed data from Jira
@@ -74,7 +64,6 @@ public class App {
 		/**
 		 * This is an example of how to write the created JSON object to file
 		 */
-		//TODO name the file based on date-time
 		JsonFileManager.writeJsonToFile(jsonObject, "response");
 	}
 
