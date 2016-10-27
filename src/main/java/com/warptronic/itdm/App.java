@@ -45,7 +45,7 @@ public class App {
 		username = args[1];
 		password = args[2];
 		
-		int auth = args[3] == null ? 0 : Integer.parseInt(args[3]);
+		int auth = args.length > 3 ? Integer.parseInt(args[3]) : 0;
 		switch (auth) {
 			case 2:
 				authenticationType = AuthType.COOKIE_BASED_AUTH;
