@@ -5,6 +5,10 @@ import java.util.Base64;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.Invocation.Builder;
 
+import org.glassfish.jersey.Beta;
+
+import com.warptronic.itdm.config.ProgramOptions;
+
 public class AuthorizationManager {
 	
 	private String user;
@@ -17,6 +21,10 @@ public class AuthorizationManager {
 		this.password = password;
 	}
 
+	public AuthorizationManager(ProgramOptions credentials) {
+		this(credentials.getUsername(), credentials.getPassword());
+	}
+
 	public Invocation.Builder addBasicAuthorizationHeader(Invocation.Builder invocationBuilder) {
 		byte[] credentials = user.concat(":").concat(password).getBytes();
 		String encodedCredentials = Base64.getEncoder().encodeToString(credentials);
@@ -24,6 +32,7 @@ public class AuthorizationManager {
 		return invocationBuilder.header("Authorization", "Basic ".concat(encodedCredentials));
 	}
 
+	@Beta
 	public Builder addCookieAuthHeader(Builder invocationBuilder) {
 		// TODO Auto-generated method stub
 		return null;

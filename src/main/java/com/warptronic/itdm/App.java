@@ -6,10 +6,13 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
+import javax.ws.rs.ClientErrorException;
 
+import com.warptronic.itdm.config.ProgramOptions;
+import com.warptronic.itdm.config.CredentialsException;
 import com.warptronic.itdm.io.JsonFileManager;
-import com.warptronic.itdm.jira.AuthType;
 import com.warptronic.itdm.jira.Request;
+import com.warptronic.itdm.utils.Writer;
 
 /**
  * This is the main class that runs the Jira Issue Exporter
@@ -28,38 +31,32 @@ public class App {
 	 * @param args arguments provided from command line in order: <code>username password auth_type</code>
 	 */
 	public static void main (String[] args) {
-		String baseUrl;
-		String username;
-		String password;
-		AuthType authenticationType;
 		
-		if (args.length < 3) {
-			System.out.println("Too few parameters Please provide the URL to Jira, the username and password");
-			System.out.println("e.g. java App.java http://jira.domain.com username password [d]");
-			System.out.println("Where 'd' is an optional number: 1 = Basic Jira Authentication, 2 = Cookie Jira Authentication");
+		if (args.length < 1) {
+			Writer.writeln("Too few parameters");
+			Writer.writeUsageDescription();
+			
 			System.exit(-1);
 		}
 		
-		//TODO sanitization of strings/URLs and format validation
-		baseUrl = args[0];
-		username = args[1];
-		password = args[2];
-		
-		int auth = args.length > 3 ? Integer.parseInt(args[3]) : 0;
-		switch (auth) {
-			case 2:
-				authenticationType = AuthType.COOKIE_BASED_AUTH;
-				break;
-			case 1:
-			default:
-				authenticationType = AuthType.BASIC_AUTH;
-				break;
+		ProgramOptions options = null;
+		try {
+			options = ProgramOptions.fromArgs(args);
+		} catch (CredentialsException e) {
+			Writer.writeln(e.getMessage());
+			Writer.writeUsageDescription();
+			
+			System.exit(-1);
 		}
-		
-		/**
-		 * This is an example showing how to save only the needed data from Jira
-		 */
-		JsonObject jsonObject = new Request(baseUrl, username, password, authenticationType).getFilteredJiraIssues(App::jiraMinimalFilter);
+
+		JsonObject jsonObject = null;
+		try {
+			jsonObject = new Request(options).getFilteredJiraIssues(App::jiraMinimalFilter);
+		} catch (ClientErrorException e) {
+			Writer.writeln("There was a problem logging in: " + e.getMessage());
+			Writer.writeUsageDescription();
+			System.exit(-1);
+		}
 		
 		/**
 		 * This is an example of how to write the created JSON object to file
@@ -69,7 +66,7 @@ public class App {
 
 	/**
 	 * <h3>Disclaimer: this is just an example showing how to create a filtering method to be refferenced</h3>
-	 * This is a method referenced to {@link Request#getFilteredJiraIssues(java.util.function.Function)} as a parameter
+	 * This is a method referenced to {@link Request#getFilteredJiraIssues(java.util.function.Function)} as a parameter.<br>
 	 * The purpose of this method is to filter the JSON received from Jira and save only the needed information 
 	 * @param jsonObject a {@link JsonObject} parameter containing the requested information from Jira
 	 * @return a {@link JsonObject} containing only the needed information

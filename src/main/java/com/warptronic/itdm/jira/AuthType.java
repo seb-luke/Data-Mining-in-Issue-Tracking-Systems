@@ -1,5 +1,6 @@
 package com.warptronic.itdm.jira;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public enum AuthType {
@@ -16,6 +17,7 @@ public enum AuthType {
 	}
 	
 	static {
+		authMap = new HashMap<>();
 		for (AuthType auth : AuthType.values()) {
 			authMap.put(auth.authCode, auth);
 		}
