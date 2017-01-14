@@ -8,6 +8,7 @@ import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.*;
 
 import com.warptronic.itdm.config.ProgramOptions;
+import com.warptronic.itdm.utils.JsonUtils;
 import com.warptronic.itdm.utils.StringUtils;
 import com.warptronic.itdm.utils.Writer;
 
@@ -18,6 +19,8 @@ import com.warptronic.itdm.utils.Writer;
  */
 public class Request {
 	private static final String Q_PARAM_MAX_RESULTS = "maxResults";
+	private static final String Q_PARAM_START_AT = "startAt";
+	private static final int JIRA_MAX_ISSUES = 1000;
 	
 	private AuthorizationManager authManager;
 	private AuthType authType;
@@ -46,37 +49,72 @@ public class Request {
 		this.programOptions = options;
 	}
 	
-	//TODO create a new method to take only 100 items per call if there are too many; check method time for a huge # of issues
-	//TODO create a new method use the above together with a filtering parameter (Method Reference)
-	
-	//TODO akka (streams) / Actor (concurency)
-	
-
 	/**
 	 * This method will return only the needed information in the issue for all of the issues from Jira
 	 * @param filteringFunction - a Method Reference ({@link Function}) whose role is to take only the needed information from the provided Issues
 	 * @return a {@link JsonObject} containing the filtered data from all of Jira's Issues
 	 */
 	public JsonObject getFilteredJiraIssues(Function<JsonObject, JsonObject> filteringFunction) {
-		JsonObject json = this.getJiraAllIssues();
 		
-		return filteringFunction.apply(json);
+		return this.getJiraAllIssues(filteringFunction);
 	}
 	
 	/**
-	 * The method will return <strong>all</strong> Jira issues. Beware when the issues are more than 1000!
+	 * The method will return <strong>all</strong> Jira issues. For Total Issues > JIRA_MAX_ISSUES it will do subsequent API calls.
 	 * @return a {@link JsonObject} containing all the issues requested
 	 */
-	private JsonObject getJiraAllIssues() {
+	private JsonObject getJiraAllIssues(Function<JsonObject, JsonObject> filteringFunction) {
+		JsonObject finalIssueList = null;
+		
 		WebTarget jiraIssueSearch = jiraRestBaseTarget.path("api").path("2").path("search");
 		jiraIssueSearch = addJql(jiraIssueSearch);
 		int totalResults = getTotalIssues(jiraIssueSearch);
 		Writer.writeln("Total issues: " + totalResults);
 		
-		Builder invocationBuilder = jiraIssueSearch.queryParam(Q_PARAM_MAX_RESULTS, totalResults).request(MediaType.APPLICATION_JSON);
+		if (totalResults > JIRA_MAX_ISSUES) {
+			finalIssueList = getPaginatedJiraIssues(jiraIssueSearch, totalResults, filteringFunction);
+		} else {
+			Builder invocationBuilder = jiraIssueSearch.queryParam(Q_PARAM_MAX_RESULTS, totalResults).request(MediaType.APPLICATION_JSON);
+			invocationBuilder = addAuthIfNeeded(invocationBuilder);
+			finalIssueList = filteringFunction.apply(invocationBuilder.get(JsonObject.class));
+		}
+		
+		return finalIssueList;
+	}
+	
+	private JsonObject getPaginatedJiraIssues(WebTarget jiraIssueSearch, int totalResults, Function<JsonObject, JsonObject> filteringFunction) {
+		int startAt = 0;
+		int total = -1;
+		JsonObject completeIssueList = null;
+		
+		while (total != 0) {
+			JsonObject nextIssueList = getRequestWithPagination(jiraIssueSearch, startAt, filteringFunction);
+			total = nextIssueList.getInt("total");
+			
+			if (completeIssueList == null) {
+				completeIssueList = nextIssueList;
+			} else {
+				completeIssueList = JsonUtils.combineIssues(completeIssueList, nextIssueList);
+			}
+			
+			startAt += JIRA_MAX_ISSUES;
+			if (total > 0) {
+				//TODO Log #read lines
+				Writer.writeln("Read " + total + " issues");
+			}
+		}
+		
+		return completeIssueList;
+	}
+	
+	private JsonObject getRequestWithPagination(WebTarget jiraIssueSearch, int startAt, Function<JsonObject, JsonObject> filteringFunction) {
+		Builder invocationBuilder = jiraIssueSearch
+										.queryParam(Q_PARAM_START_AT, startAt)
+										.queryParam(Q_PARAM_MAX_RESULTS, JIRA_MAX_ISSUES)
+										.request(MediaType.APPLICATION_JSON);
 		invocationBuilder = addAuthIfNeeded(invocationBuilder);
 		
-		return invocationBuilder.get(JsonObject.class);
+		return filteringFunction.apply(invocationBuilder.get(JsonObject.class));
 	}
 	
 	private WebTarget addJql(WebTarget jiraIssueSearch) {
