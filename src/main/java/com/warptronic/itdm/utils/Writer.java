@@ -16,10 +16,11 @@ public class Writer {
 	
 	public static void writeUsageDescription() {
 		String description = "Usage:\n";
-		description += "\tjava App.java http://jira.domain.com [-user username -pwd password] "
+		description += "\tjava App.java http://jira.domain.com [-user username -pwd password] [-cookie cookieValue"
 				+ "[-authtype d] [-projectname name]\n";
 		description += "\twhere 'd' is a number from: 0 = No Authentication, "
 				+ "1 = Basic Jira Authentication, 2 = Cookie Jira Authentication";
+		description += "\n\tand cookieValue is the value of the 'JSESSIONID' cookie from the browser";
 		
 		Writer.writeln(description);
 	}

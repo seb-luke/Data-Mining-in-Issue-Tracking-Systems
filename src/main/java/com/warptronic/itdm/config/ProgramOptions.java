@@ -9,6 +9,7 @@ public class ProgramOptions {
 	private String username = "";
 	private String password = "";
 	private String projectName = "";
+	private String cookie = "";
 	private AuthType authenticationType = AuthType.NO_AUTH;
 	
 	private ProgramOptions() {
@@ -31,6 +32,9 @@ public class ProgramOptions {
 					break;
 				case "-pwd":
 					credentials.password = getValueFromArg("pwd", args, ++i);
+					break;
+				case "-cookie":
+					credentials.cookie = getValueFromArg("cookie", args, ++i);
 					break;
 				case "-authtype":
 					String value = getValueFromArg("authtype", args, ++i); 
@@ -72,6 +76,10 @@ public class ProgramOptions {
 
 	public String getPassword() {
 		return password;
+	}
+	
+	public String getCookie() {
+		return cookie;
 	}
 
 	public AuthType getAuthenticationType() {

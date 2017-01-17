@@ -37,15 +37,16 @@ public class Request {
 	 * @param userName - a {@link String} containing the User Name of any user accepted by Jira
 	 * @param password - a {@link String} containing the Password for the provided user
 	 */
-	public Request(String jiraBasePath, AuthType authType, String userName, String password) {
-		authManager = new AuthorizationManager(userName, password);
+	public Request(String jiraBasePath, AuthType authType, String userName, String password, String cookie) {
+		authManager = new AuthorizationManager(userName, password, cookie);
 		
 		this.jiraRestBaseTarget = ClientBuilder.newClient().target(jiraBasePath).path("rest");
 		this.authType = authType;
 	}
 	
 	public Request(ProgramOptions options) {
-		this(options.getBaseUrl(), options.getAuthenticationType(), options.getUsername(), options.getPassword());
+		this(options.getBaseUrl(), options.getAuthenticationType(), 
+				options.getUsername(), options.getPassword(), options.getCookie());
 		this.programOptions = options;
 	}
 	

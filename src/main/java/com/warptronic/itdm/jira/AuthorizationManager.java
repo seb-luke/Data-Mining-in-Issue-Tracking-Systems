@@ -16,13 +16,16 @@ public class AuthorizationManager {
 	private String sessionName;
 	private String sessionValue;
 	
-	public AuthorizationManager(String user, String password) {
+	public AuthorizationManager(String user, String password, String cookieValue) {
 		this.user = user;
 		this.password = password;
+		
+		this.sessionName = "JSESSIONID";
+		this.sessionValue = cookieValue;
 	}
 
 	public AuthorizationManager(ProgramOptions credentials) {
-		this(credentials.getUsername(), credentials.getPassword());
+		this(credentials.getUsername(), credentials.getPassword(), credentials.getCookie());
 	}
 
 	public Invocation.Builder addBasicAuthorizationHeader(Invocation.Builder invocationBuilder) {
@@ -34,7 +37,7 @@ public class AuthorizationManager {
 
 	@Beta
 	public Builder addCookieAuthHeader(Builder invocationBuilder) {
-		// TODO Auto-generated method stub
-		return null;
+
+		return invocationBuilder.header("cookie", sessionName + "=" + sessionValue);
 	}
 }
