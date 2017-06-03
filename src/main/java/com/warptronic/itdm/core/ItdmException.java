@@ -4,25 +4,28 @@ package com.warptronic.itdm.core;
  * @author Sebastian Luca
  *
  */
-public abstract class WarptronicBaseException extends RuntimeException {
+public class ItdmException extends WarptronicBaseException {
 
-	private static final long serialVersionUID = 1L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3048416805703244021L;
 
-	public WarptronicBaseException() {
+	public ItdmException() {
 		// empty constructor
 	}
 
 	/**
 	 * @param message
 	 */
-	public WarptronicBaseException(String message) {
+	public ItdmException(String message) {
 		super(message);
 	}
 
 	/**
 	 * @param cause
 	 */
-	public WarptronicBaseException(Throwable cause) {
+	public ItdmException(Throwable cause) {
 		super(cause);
 	}
 
@@ -30,7 +33,7 @@ public abstract class WarptronicBaseException extends RuntimeException {
 	 * @param message
 	 * @param cause
 	 */
-	public WarptronicBaseException(String message, Throwable cause) {
+	public ItdmException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -40,8 +43,7 @@ public abstract class WarptronicBaseException extends RuntimeException {
 	 * @param enableSuppression
 	 * @param writableStackTrace
 	 */
-	public WarptronicBaseException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+	public ItdmException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
-
 }
