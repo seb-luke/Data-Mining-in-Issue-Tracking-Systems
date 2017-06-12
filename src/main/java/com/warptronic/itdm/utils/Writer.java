@@ -15,14 +15,19 @@ public class Writer {
 	}
 	
 	public static void writeUsageDescription() {
-		String description = "Usage:\n";
-		description += "\tjava App.java http://jira.domain.com [-user username -pwd password] [-cookie cookieValue"
-				+ "[-authtype d] [-projectname name]\n";
-		description += "\twhere 'd' is a number from: 0 = No Authentication, "
-				+ "1 = Basic Jira Authentication, 2 = Cookie Jira Authentication";
-		description += "\n\tand cookieValue is the value of the 'JSESSIONID' cookie from the browser";
+		StringBuilder builder = new StringBuilder("Usage:\n");
+		builder.append("\tjava App.java http://jira.domain.com");
+		builder.append(" [-user username -pwd password]");
+		builder.append(" [-cookie cookieValue]");
+		builder.append(" [-authtype d]");
+		builder.append(" [-projectname name]\n");
+		builder.append("\twhere 'd' is a number from:");
+		builder.append(" 0 = No Authentication,");
+		builder.append(" 1 = Basic Jira Authentication,");
+		builder.append(" 2 = Cookie Jira Authentication");
+		builder.append("\n\tand cookieValue is the value of the 'JSESSIONID' cookie from the browser");
 		
-		Writer.writeln(description);
+		Writer.writeln(builder.toString());
 	}
 
 }
